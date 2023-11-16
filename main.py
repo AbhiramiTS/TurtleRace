@@ -1,3 +1,4 @@
+import turtle
 from turtle import Turtle, Screen
 import random
 
@@ -12,14 +13,14 @@ screen.setup(width=500, height=screen_height)
 # Define colors for turtles
 color = ["red", "green", "yellow", "blue", "orange", "purple", "pink", "brown", "black", "violet"]
 
-# Initialize an empty list to store turtle objects
-turtle_list = []
-
 # Set the maximum number of turtles
 max_turtles = 10
 
 
 def create_turtles(turtles):
+    # Initialize an empty list to store turtle objects
+    turtle_list = []
+
     # Calculate the total space available for the turtles
     available_height = screen_height - top_margin - bottom_margin
 
@@ -41,10 +42,30 @@ def create_turtles(turtles):
 
         # Add the turtle object to the list
         turtle_list.append(turtle_obj)
+    return turtle_list
+
+
+def start_race(turtles, user_bet):
+    race = True
+    result = []
+    while race:
+        for turtle_item in turtles:
+            turtle_item.penup()
+            turtle_item.forward(random.randint(0, 10))
+            if turtle_item.xcor() >= 230:
+                turtle_color = turtle_item.color()
+                if turtle_item.color() == user_bet:
+                    result.append("Yayyy!!! You Win :)")
+                    result.append(f"The winner turtle color is {turtle_color[0]}")
+                else:
+                    result.append("Sorry!!! You Lose :)")
+                    result.append(f"The winner turtle color is {turtle_color[0]}")
+                race = False
+                break
+    return result
 
 
 def get_user_input():
-
     # Ensure the user enters a valid number of turtles (less than or equal to 10)
     while True:
         no_of_turtles = screen.textinput(title=f"Number of Turtles in this Race (Max: {max_turtles})",
@@ -57,13 +78,20 @@ def get_user_input():
 
     # Get user's bet for the race
     user_bet = screen.textinput(title="Make Your Bet",
-                                prompt=f"Which turtle will win the race? Enter the color [{', '.join(color)}]: ")
+                                prompt=f"Which turtle will win the race? Enter the color [{', '.join(color[:no_of_turtles])}]: ")
 
     return no_of_turtles, user_bet
 
 
-user_input = get_user_input()
-create_turtles(user_input[0])
-
-# Close the screen when clicked
-screen.exitonclick()
+while True:
+    user_input = get_user_input()
+    turtle_list = create_turtles(user_input[0])
+    winner = start_race(turtle_list, user_input[1])
+    title = winner[0]
+    message = winner[1]
+    play = screen.textinput(title=title,
+                            prompt=f"{message}. Do you want to play the game again? Type 'yes' or 'no': ")
+    if play.lower() == 'no':
+        turtle.bye()
+    else:
+        turtle.clearscreen()
